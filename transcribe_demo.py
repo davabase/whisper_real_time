@@ -5,6 +5,7 @@ import io
 import os
 import speech_recognition as sr
 import whisper
+import torch
 
 from datetime import datetime, timedelta
 from queue import Queue
@@ -99,7 +100,7 @@ def main():
                     f.write(wav_data.read())
 
                 # Read the transcription.
-                result = audio_model.transcribe(temp_file)
+                result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 # If we detected a pause between recordings, add a new item to our transcripion.
