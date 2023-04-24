@@ -18,13 +18,16 @@ class SpeechHandler:
         self.args = ParserValues.fromSystemArguments()
         # The last time a recording was retreived from the queue.
         self.phrase_time = None
+
         # Current raw audio bytes.
         self.last_sample = bytes()
+
         # Thread safe Queue for passing data from the threaded recording callback.
         self.data_queue = Queue()
+
         # We use SpeechRecognizer to record our audio because it has a nice feauture where it can detect when speech ends.
         self.recorder = sr.Recognizer()
-        self.recorder.energy_threshold = self.args.energy_threshold
+
         # Definitely do this, dynamic energy compensation lowers the energy threshold dramtically to a point where the SpeechRecognizer never stops recording.
         self.recorder.dynamic_energy_threshold = False
 
@@ -32,18 +35,20 @@ class SpeechHandler:
         # Prevents permanent application hang and crash by using the wrong Microphone
         self.device_index = AudioDeviceConfiguration.get_microphone_device_index(self.args.default_microphone)
 
-        # Load / Download model
-        self.audio_model = self.load_mode()
+        # Getting names for the Temporary Files
+        self.temp_file = NamedTemporaryFile().name
 
+        # Load / Download model
+        self.audio_model = self.load_mode(self.args)
+
+        # Setting values according to the args 
+        self.recorder.energy_threshold = self.args.energy_threshold
         self.record_timeout = self.args.record_timeout
         self.silence_timeout = self.args.silence_timeout
 
-        self.temp_file = NamedTemporaryFile().name
-
         self.generate_audio_source()
 
-    def load_mode(self):
-        args = self.args
+    def load_mode(self,args):
         ONLY_ENGLISH = False
         model = args.model
         if args.model != "large" and not args.non_english and ONLY_ENGLISH:
