@@ -45,8 +45,12 @@ class SpeechHandler:
         self.recorder.energy_threshold = self.args.energy_threshold
         self.record_timeout = self.args.record_timeout
         self.silence_timeout = self.args.silence_timeout
+        self.transcription = ['']
 
         self.generate_audio_source()
+
+        # Cue the user that we're ready to go.
+        print("Model loaded.\n")
 
     def load_mode(self,args):
         ONLY_ENGLISH = False
@@ -74,10 +78,6 @@ class SpeechHandler:
         self.recorder.listen_in_background(self.source, record_callback, phrase_time_limit=self.record_timeout)
 
     def execute(self):
-        # Cue the user that we're ready to go.
-        print("Model loaded.\n")
-        #clear terminal
-        self.transcription = ['']
         is_speaking = False
         while True:
             try:
@@ -133,6 +133,7 @@ class SpeechHandler:
 
     def result_transcription_handler(self,result,has_silence_timeout):
         text = result['text'].strip()
+        if(text is None or text is ""): return self.transcription
         # If we detected a pause between recordings, add a new item to our transcripion.
         # Otherwise edit the existing one.
         if has_silence_timeout:
