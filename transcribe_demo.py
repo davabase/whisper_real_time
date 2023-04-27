@@ -9,7 +9,6 @@ import torch
 
 from datetime import datetime, timedelta
 from queue import Queue
-from tempfile import NamedTemporaryFile
 from time import sleep
 from sys import platform
 
@@ -71,7 +70,6 @@ def main():
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
 
-    temp_file = NamedTemporaryFile().name
     transcription = ['']
     
     with source:
@@ -116,12 +114,8 @@ def main():
                 audio_data = sr.AudioData(last_sample, source.SAMPLE_RATE, source.SAMPLE_WIDTH)
                 wav_data = io.BytesIO(audio_data.get_wav_data())
 
-                # Write wav data to the temporary file as bytes.
-                with open(temp_file, 'w+b') as f:
-                    f.write(wav_data.read())
-
                 # Read the transcription.
-                result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
+                result = audio_model.transcribe(wav_data, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 # If we detected a pause between recordings, add a new item to our transcripion.
