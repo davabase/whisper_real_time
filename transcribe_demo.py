@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)  
+    parser.add_argument("--output_file", default=None,
+                        help="Output file path for transcriptions.", type=str)  # New argument
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
                             help="Default microphone name for SpeechRecognition. "
@@ -135,6 +137,12 @@ def main():
                 os.system('cls' if os.name=='nt' else 'clear')
                 for line in transcription:
                     print(line)
+
+                # Write to output file if one was provided
+                if args.output_file:
+                    with open(args.output_file, 'a') as f:
+                        f.write(line + '\n')
+
                 # Flush stdout.
                 print('', end='', flush=True)
 
@@ -146,6 +154,9 @@ def main():
     print("\n\nTranscription:")
     for line in transcription:
         print(line)
+        if args.output_file:
+            with open(args.output_file, 'a') as f:
+                f.write(line + '\n')
 
 
 if __name__ == "__main__":
