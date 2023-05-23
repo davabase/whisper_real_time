@@ -18,6 +18,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="medium", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
+    parser.add_argument("--language", help="language to use: 'cs' for Czech, 'sk' for Slovak",
+                        choices=["cs", "sk"])
     parser.add_argument("--non_english", action='store_true',
                         help="Don't use the english model.")
     parser.add_argument("--energy_threshold", default=1000,
@@ -77,7 +79,7 @@ def main():
     with source:
         recorder.adjust_for_ambient_noise(source)
 
-    def record_callback(_, audio:sr.AudioData) -> None:
+    def record_callback(_, audio: sr.AudioData) -> None:
         """
         Threaded callback function to recieve audio data when recordings finish.
         audio: An AudioData containing the recorded bytes.
@@ -121,7 +123,10 @@ def main():
                     f.write(wav_data.read())
 
                 # Read the transcription.
-                result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
+                if args.language:
+                    result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available(), language=args.language)
+                else:
+                    result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 # If we detected a pause between recordings, add a new item to our transcripion.
