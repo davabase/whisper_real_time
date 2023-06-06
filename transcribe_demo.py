@@ -63,7 +63,7 @@ def main():
     # Load / Download model
     model = args.model
         
-    audio_model = whisper_ko.load_model(model, fp16=torch.cuda.is_available())
+    audio_model = whisper_ko.load_model(model, fp16=torch.cuda.is_available()) #mod
 
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
