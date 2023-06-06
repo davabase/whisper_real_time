@@ -4,7 +4,7 @@ import argparse
 import io
 import os
 import speech_recognition as sr
-import whisper
+import whisper_ko   # mod
 import torch
 
 from datetime import datetime, timedelta
@@ -16,10 +16,8 @@ from sys import platform
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="medium", help="Model to use",
-                        choices=["tiny", "base", "small", "medium", "large"])
-    parser.add_argument("--non_english", action='store_true',
-                        help="Don't use the english model.")
+    parser.add_argument("--model", default="seastar105/whisper-medium-ko-zeroth", help="Model to use",
+                        choices=["seastar105/whisper-medium-ko-zeroth"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
@@ -64,9 +62,8 @@ def main():
         
     # Load / Download model
     model = args.model
-    if args.model != "large" and not args.non_english:
-        model = model + ".en"
-    audio_model = whisper.load_model(model)
+        
+    audio_model = whisper_ko.load_model(model, fp16=torch.cuda.is_available())
 
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
@@ -121,7 +118,7 @@ def main():
                     f.write(wav_data.read())
 
                 # Read the transcription.
-                result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
+                result = audio_model.transcribe(temp_file) # mod. move to the load section, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 # If we detected a pause between recordings, add a new item to our transcripion.
