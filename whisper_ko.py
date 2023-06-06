@@ -6,14 +6,14 @@ from subprocess import CalledProcessError, run
 class whisper_model():
     def __init__(self, model_name:str, fp16_available:bool):
         if fp16_available:
-            # Load model
-            self.processor = AutoProcessor.from_pretrained(model_name)
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name).cuda()
-            self.fp16_available = fp16_available
         else:
-            # Load model
-            self.processor = AutoProcessor.from_pretrained(model_name)
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name)
+            
+        self.processor = AutoProcessor.from_pretrained(model_name)
+        self.fp16_available = fp16_available
+        
+            
 
     def transcribe(self, file_path:str) -> str:
         

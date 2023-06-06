@@ -16,8 +16,8 @@ from sys import platform
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="seastar105/whisper-medium-ko-zeroth", help="Model to use",
-                        choices=["seastar105/whisper-medium-ko-zeroth"])
+    parser.add_argument("--model", default="byoussef/whisper-large-v2-Ko", help="Model to use",
+                        choices=["byoussef/whisper-large-v2-Ko", "seastar105/whisper-medium-ko-zeroth"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
