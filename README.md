@@ -15,6 +15,7 @@ Whisper also requires the command-line tool [`ffmpeg`](https://ffmpeg.org/) to b
 ```
 # on Ubuntu or Debian
 sudo apt update && sudo apt install ffmpeg
+sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 
 # on Arch Linux
 sudo pacman -S ffmpeg
