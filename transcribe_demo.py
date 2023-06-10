@@ -77,12 +77,19 @@ class SpeechHandler:
         # We could do this manually but SpeechRecognizer provides a nice helper.
         self.recorder.listen_in_background(self.source, record_callback, phrase_time_limit=self.record_timeout)
 
+    def read_complete_audio(self):
+        # Read the transcription.
+        result = self.audio_model.transcribe(self.temp_file, fp16=torch.cuda.is_available())
+        self.transcription = self.result_transcription_handler(result,True)
+        self.show_transcription()
+
     def execute(self):
         is_speaking = False
         while True:
             try:
                 # Pull raw recorded audio from the queue.
                 if not self.data_queue.empty():
+                    self.show_hearing()
                     # If enough time has passed between recordings, consider the phrase complete.
                     # Clear the current working audio buffer to start over with the new data.
                     has_silence_timeout = self.silence_time_is_up()
@@ -102,15 +109,9 @@ class SpeechHandler:
                     # Write wav data to the temporary file as bytes.
                     AudioUtil.write_temp_audio_file(self.temp_file,wav_data)
 
-                    # Read the transcription.
-                    result = self.audio_model.transcribe(self.temp_file, fp16=torch.cuda.is_available())
-                    self.transcription = self.result_transcription_handler(result,has_silence_timeout)
-                    self.show_transcription()
-                        
                 else:
                     if(is_speaking and self.silence_time_is_up()):
-                        self.transcription[-1] = f"[Final]: {self.transcription[-1]}"
-                        self.show_transcription()
+                        self.read_complete_audio()
                         is_speaking = False
 
             except KeyboardInterrupt:
@@ -133,7 +134,7 @@ class SpeechHandler:
 
     def result_transcription_handler(self,result,has_silence_timeout):
         text = result['text'].strip()
-        if(text is None or text is ""): return self.transcription
+        if(text is None or text == ""): return self.transcription
         # If we detected a pause between recordings, add a new item to our transcripion.
         # Otherwise edit the existing one.
         if has_silence_timeout:
@@ -148,6 +149,11 @@ class SpeechHandler:
         for line in self.transcription:
             print(line)
         # Flush stdout.
+        print('', end='', flush=True)
+
+    def show_hearing(self):
+        os.system('cls' if os.name=='nt' else 'clear')
+        print("Escuchando...")
         print('', end='', flush=True)
 
 
