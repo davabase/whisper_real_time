@@ -57,7 +57,7 @@ def main():
         else:
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
                 if mic_name in name:
-                    source = sr.Microphone(sample_rate=16000, device_index=index)
+                    source = sr.Microphone(sample_rate=48000, device_index=index)
                     break
     else:
         source = sr.Microphone(sample_rate=16000)
