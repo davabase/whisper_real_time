@@ -83,7 +83,7 @@ def main():
 
     except Exception as e:
         print(
-            f"Error occurred when initializing the microphone with sample rate {args.sample_rate}. Please check if this sample rate is supported. Detailed error message: {str(e)}")
+            f"Error occurred when initializing the microphone with sample rate {args.sample_rate}. Please check if this sample rate is supported. Error: {str(e)}")
         exit(1)
 
     def record_callback(_, audio: sr.AudioData) -> None:
