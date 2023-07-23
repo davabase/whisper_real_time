@@ -49,37 +49,42 @@ def main():
 
     # Important for linux users.
     # Prevents permanent application hang and crash by using the wrong Microphone
-    if 'linux' in platform:
-        mic_name = args.default_microphone
-        if not mic_name or mic_name == 'list':
-            print("Available microphone devices are: ")
-            for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                print(f"Microphone with name \"{name}\" found")
-            return
+    try:
+        if 'linux' in platform:
+            mic_name = args.default_microphone
+            if not mic_name or mic_name == 'list':
+                print("Available microphone devices are: ")
+                for index, name in enumerate(sr.Microphone.list_microphone_names()):
+                    print(f"Microphone with name \"{name}\" found")
+                return
+            else:
+                for index, name in enumerate(sr.Microphone.list_microphone_names()):
+                    if mic_name in name:
+                        source = sr.Microphone(
+                            sample_rate=args.sample_rate, device_index=index)
+                        break
         else:
-            for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                if mic_name in name:
-                    source = sr.Microphone(
-                        sample_rate=args.sample_rate, device_index=index)
-                    break
-    else:
-        source = sr.Microphone(
-            sample_rate=args.sample_rate, device_index=index)
+            source = sr.Microphone(sample_rate=args.sample_rate, device_index=index)
 
-    # Load / Download model
-    model = args.model
-    if args.model != "large" and not args.non_english:
-        model = model + ".en"
-    audio_model = whisper.load_model(model)
+        # Load / Download model
+        model = args.model
+        if args.model != "large" and not args.non_english:
+            model = model + ".en"
+        audio_model = whisper.load_model(model)
 
-    record_timeout = args.record_timeout
-    phrase_timeout = args.phrase_timeout
+        record_timeout = args.record_timeout
+        phrase_timeout = args.phrase_timeout
 
-    temp_file = NamedTemporaryFile().name
-    transcription = ['']
+        temp_file = NamedTemporaryFile().name
+        transcription = ['']
 
-    with source:
-        recorder.adjust_for_ambient_noise(source)
+        with source:
+            recorder.adjust_for_ambient_noise(source)
+
+    except Exception as e:
+        print(
+            f"Error occurred when initializing the microphone with sample rate {args.sample_rate}. Please check if this sample rate is supported. Detailed error message: {str(e)}")
+        exit(1)
 
     def record_callback(_, audio: sr.AudioData) -> None:
         """
