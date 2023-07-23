@@ -26,7 +26,9 @@ def main():
                         help="How real time the recording is in seconds.", type=float)
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
-                             "consider it a new line in the transcription.", type=float)  
+                            "consider it a new line in the transcription.", type=float)
+    parser.add_argument("--sample_rate", default=16000,
+                        help="Sample rate for the microphone.", type=int)
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
                             help="Default microphone name for SpeechRecognition. "
@@ -57,10 +59,10 @@ def main():
         else:
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
                 if mic_name in name:
-                    source = sr.Microphone(sample_rate=48000, device_index=index)
+                    source = sr.Microphone(sample_rate=args.sample_rate, device_index=index)
                     break
     else:
-        source = sr.Microphone(sample_rate=16000)
+        source = sr.Microphone(sample_rate=args.sample_rate, device_index=index)
         
     # Load / Download model
     model = args.model
