@@ -107,7 +107,7 @@ class WhisperRecognizer(whisper_ko.WhisperModel):
             # Otherwise edit the existing one.
             if phrase_complete:
                 self.transcription.append(text)
-            else:
+            elif not text==None:
                 self.transcription[-1] = text
 
             return self.transcription
