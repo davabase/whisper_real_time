@@ -14,6 +14,13 @@ from sys import platform
 class WhisperRecognizer(whisper_ko.WhisperModel):
     
     def __init__(self, model_name=0):
+        '''
+        For large, medium, small ko_whisper model, use
+        model_name:int = [0, 1, 2] 
+        
+        For a custom huggingface model, use
+        model_name:str
+        '''
         if isinstance(model_name, int):
             try: model = ["byoussef/whisper-large-v2-Ko", "seastar105/whisper-medium-ko-zeroth", 'deemboi/whisper-small-kr'][model_name]
             except: raise Exception('Model does not exist. Maybe out of range')
