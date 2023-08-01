@@ -3,7 +3,7 @@ from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from subprocess import CalledProcessError, run
 
 
-class whisper_model():
+class WhisperModel():
     def __init__(self, model_name:str, fp16_available:bool):
         if fp16_available:
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name).cuda()
@@ -26,7 +26,7 @@ class whisper_model():
         else:
             input_features = self.processor(wavarr, sampling_rate=16000, return_tensors='pt').input_features
 
-        predicted_ids = self.model.generate(input_features)
+        predicted_ids = self.model.generate(input_features, max_new_tokens=64)
 
         transcription = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
         
@@ -54,4 +54,4 @@ def load_audio(file: str, sr: int = 16000):
     return np.frombuffer(out, np.int16).flatten().astype(np.float32) / 32768.0
 
 def load_model(model_name:str="seastar105/whisper-medium-ko-zeroth", fp16:bool=False):
-    return whisper_model(model_name, fp16)
+    return WhisperModel(model_name, fp16)

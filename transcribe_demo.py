@@ -17,7 +17,7 @@ from sys import platform
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="byoussef/whisper-large-v2-Ko", help="Model to use",
-                        choices=["byoussef/whisper-large-v2-Ko", "seastar105/whisper-medium-ko-zeroth"])
+                        choices=["byoussef/whisper-large-v2-Ko", "seastar105/whisper-medium-ko-zeroth", 'deemboi/whisper-small-kr'])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
@@ -130,6 +130,7 @@ def main():
 
                 # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')
+                print(now)
                 for line in transcription:
                     print(line)
                 # Flush stdout.
