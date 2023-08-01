@@ -1,8 +1,8 @@
-# Real Time Whisper Transcription
+# Real-Time Whisper Transcription
 
 ![Demo gif](demo.gif)
 
-This is a demo of real time speech to text with OpenAI's Whisper model. It works by constantly recording audio in a thread and concatenating the raw bytes over multiple recordings.
+This is a demo of real-time speech-to-text with OpenAI's Whisper model. It works by constantly recording audio in a thread and concatenating the raw bytes over multiple recordings.
 
 To install dependencies simply run
 ```
@@ -32,3 +32,20 @@ scoop install ffmpeg
 For more information on Whisper please see https://github.com/openai/whisper
 
 The code in this repository is public domain.
+
+
+## transcribe_pack.py Example
+You can use this module for simplicity.
+```Python
+# Load module
+import transcribe_pack
+
+# Load Whisper Model
+model = transcribe_pack.WhisperRecognizer(2) # [0 = large, 1 = medium, 2 = small]
+
+while True:
+  # is there any new sentence?
+  if not whisper.data_queue.empty(): continue
+
+  result = model.get_sentence()
+  print(result[-1])
