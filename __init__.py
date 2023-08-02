@@ -1,1 +1,1 @@
-from .transcribe_pack import *
+from .whisper_real_time import *

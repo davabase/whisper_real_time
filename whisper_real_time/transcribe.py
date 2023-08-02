@@ -2,7 +2,7 @@
 
 import io
 import speech_recognition as sr
-from . import whisper_ko   # mod
+from . import whisper
 import torch
 
 from datetime import datetime, timedelta
@@ -10,20 +10,12 @@ from queue import Queue
 from tempfile import NamedTemporaryFile
 from sys import platform
 
-class WhisperRecognizer(whisper_ko.WhisperModel):
-    
-    def __init__(self, model_name=0):
+
+class WhisperRecognizer(whisper.WhisperModel):
+    def __init__(self, model:str):
         '''
-        For large, medium, small ko_whisper model, use
-        model_name:int = [0, 1, 2] 
-        
-        For a custom huggingface model, use
-        model_name:str
+        model: huggingface model name
         '''
-        if isinstance(model_name, int):
-            try: model = ["byoussef/whisper-large-v2-Ko", "seastar105/whisper-medium-ko-zeroth", 'deemboi/whisper-small-kr'][model_name]
-            except: raise Exception('Model does not exist. Maybe out of range')
-        else: model = model_name
 
         self.phrase_time = None
         self.last_sample = bytes()
@@ -37,11 +29,11 @@ class WhisperRecognizer(whisper_ko.WhisperModel):
         self.temp_file = NamedTemporaryFile().name
         self.transcription = ['']
         
-        '''
+        
         # Important for linux users. 
         # Prevents permanent application hang and crash by using the wrong Microphone
         if 'linux' in platform:
-            mic_name = 'pulse'  # idk. i dont use linux
+            mic_name = 'pulse'
             if not mic_name or mic_name == 'list':
                 print("Available microphone devices are: ")
                 for index, name in enumerate(sr.Microphone.list_microphone_names()):
@@ -53,10 +45,10 @@ class WhisperRecognizer(whisper_ko.WhisperModel):
                         self.source = sr.Microphone(sample_rate=16000, device_index=index)
                         break
         else: pass
-        '''
-            
+        
+        
         # Load / Download model
-        self.audio_model = whisper_ko.load_model(model, fp16=torch.cuda.is_available()) #mod
+        self.audio_model = whisper.WhisperModel(model, fp16_available=torch.cuda.is_available())
         
         with self.source:
             self.recorder.adjust_for_ambient_noise(self.source)
@@ -73,9 +65,6 @@ class WhisperRecognizer(whisper_ko.WhisperModel):
         # Create a background thread that will pass us raw audio bytes.
         # We could do this manually but SpeechRecognizer provides a nice helper.
         self.recorder.listen_in_background(self.source, record_callback, phrase_time_limit=self.record_timeout)
-
-        # Cue the user that we're ready to go.
-        print("Model loaded.\n")
 
 
 

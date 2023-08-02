@@ -53,5 +53,5 @@ def load_audio(file: str, sr: int = 16000):
 
     return np.frombuffer(out, np.int16).flatten().astype(np.float32) / 32768.0
 
-def load_model(model_name:str="seastar105/whisper-medium-ko-zeroth", fp16:bool=False):
+def load_model(model_name:str, fp16:bool=False):
     return WhisperModel(model_name, fp16)
