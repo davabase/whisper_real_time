@@ -1,9 +1,8 @@
 #! python3.7
 
 import io
-import os
 import speech_recognition as sr
-import whisper_ko   # mod
+from . import whisper_ko   # mod
 import torch
 
 from datetime import datetime, timedelta
