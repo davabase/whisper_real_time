@@ -33,17 +33,16 @@ def main():
                             help="Default microphone name for SpeechRecognition. "
                                  "Run this with 'list' to view available Microphones.", type=str)
     args = parser.parse_args()
-
-    # The last time a recording was retreived from the queue.
+    # The last time a recording was retrieved from the queue.
     phrase_time = None
     # Current raw audio bytes.
     last_sample = bytes()
     # Thread safe Queue for passing data from the threaded recording callback.
     data_queue = Queue()
-    # We use SpeechRecognizer to record our audio because it has a nice feauture where it can detect when speech ends.
+    # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
     recorder = sr.Recognizer()
     recorder.energy_threshold = args.energy_threshold
-    # Definitely do this, dynamic energy compensation lowers the energy threshold dramtically to a point where the SpeechRecognizer never stops recording.
+    # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
     recorder.dynamic_energy_threshold = False
 
     # Important for linux users.
@@ -80,7 +79,7 @@ def main():
 
     def record_callback(_, audio:sr.AudioData) -> None:
         """
-        Threaded callback function to recieve audio data when recordings finish.
+        Threaded callback function to receive audio data when recordings finish.
         audio: An AudioData containing the recorded bytes.
         """
         # Grab the raw bytes and push it into the thread safe queue.
@@ -125,7 +124,7 @@ def main():
                 result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
-                # If we detected a pause between recordings, add a new item to our transcripion.
+                # If we detected a pause between recordings, add a new item to our transcription.
                 # Otherwise edit the existing one.
                 if phrase_complete:
                     transcription.append(text)
