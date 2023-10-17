@@ -6,6 +6,7 @@ import os
 import speech_recognition as sr
 import whisper
 import torch
+import sounddevice
 
 from datetime import datetime, timedelta
 from queue import Queue
@@ -32,7 +33,6 @@ def main():
                             help="Default microphone name for SpeechRecognition. "
                                  "Run this with 'list' to view available Microphones.", type=str)
     args = parser.parse_args()
-
     # The last time a recording was retrieved from the queue.
     phrase_time = None
     # Current raw audio bytes.
