@@ -1,5 +1,4 @@
-pyaudio
-SpeechRecognition
---extra-index-url https://download.pytorch.org/whl/cu116
-torch
-git+https://github.com/openai/whisper.git
+pyaudio==0.2.13
+SpeechRecognition==3.10.0
+torch==2.1.0
+openai-whisper==20230918
