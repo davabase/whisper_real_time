@@ -3,6 +3,7 @@
 import argparse
 import io
 import os
+import numpy as np
 import speech_recognition as sr
 import whisper
 import torch
@@ -106,22 +107,16 @@ def main():
                     phrase_complete = True
                 # This is the last time we received new audio data from the queue.
                 phrase_time = now
-
-                # Concatenate our current audio data with the latest audio data.
-                while not data_queue.empty():
-                    data = data_queue.get()
-                    last_sample += data
-
-                # Use AudioData to convert the raw data to wav data.
-                audio_data = sr.AudioData(last_sample, source.SAMPLE_RATE, source.SAMPLE_WIDTH)
-                wav_data = io.BytesIO(audio_data.get_wav_data())
-
-                # Write wav data to the temporary file as bytes.
-                with open(temp_file, 'w+b') as f:
-                    f.write(wav_data.read())
+                
+                # Combine audio data from queue
+                audio_data = b''.join(data_queue.queue)
+                data_queue.queue.clear()
+                
+                # Convert in-ram buffer to something the model can use directly without needing a temp file.
+                audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
                 # Read the transcription.
-                result = audio_model.transcribe(temp_file, fp16=torch.cuda.is_available())
+                result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 # If we detected a pause between recordings, add a new item to our transcription.
