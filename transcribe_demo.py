@@ -36,8 +36,6 @@ def main():
 
     # The last time a recording was retrieved from the queue.
     phrase_time = None
-    # Current raw audio bytes.
-    last_sample = bytes()
     # Thread safe Queue for passing data from the threaded recording callback.
     data_queue = Queue()
     # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
@@ -103,7 +101,6 @@ def main():
                 # If enough time has passed between recordings, consider the phrase complete.
                 # Clear the current working audio buffer to start over with the new data.
                 if phrase_time and now - phrase_time > timedelta(seconds=phrase_timeout):
-                    last_sample = bytes()
                     phrase_complete = True
                 # This is the last time we received new audio data from the queue.
                 phrase_time = now
