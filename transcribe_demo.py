@@ -1,7 +1,6 @@
 #! python3.7
 
 import argparse
-import io
 import os
 import numpy as np
 import speech_recognition as sr
@@ -10,7 +9,6 @@ import torch
 
 from datetime import datetime, timedelta
 from queue import Queue
-from tempfile import NamedTemporaryFile
 from time import sleep
 from sys import platform
 
@@ -70,7 +68,6 @@ def main():
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
 
-    temp_file = NamedTemporaryFile().name
     transcription = ['']
 
     with source:
@@ -110,6 +107,8 @@ def main():
                 data_queue.queue.clear()
                 
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
+                # Convert data from 16 bit wide integers to floating point with a width of 32 bits.
+                # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768hz max.
                 audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
                 # Read the transcription.
