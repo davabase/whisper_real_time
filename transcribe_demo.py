@@ -128,7 +128,7 @@ def main():
                     print(line)
                 # Flush stdout.
                 print('', end='', flush=True)
-
+            else:
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
         except KeyboardInterrupt:
