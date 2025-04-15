@@ -6,14 +6,32 @@ import numpy as np
 import speech_recognition as sr
 import whisper
 import torch
-
+import asyncio
+import time
 from datetime import datetime, timedelta
 from queue import Queue
 from time import sleep
 from sys import platform
 
+# Add save_transcript coroutine
+async def save_transcript(transcription, filename=None):
+    """
+    Coroutine to save the transcript to a file.
+    """
+    if filename is None:
+        filename = f"transcript_{int(time.time())}.txt"
+    
+    while True:
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(transcription))
+            await asyncio.sleep(5)  # Save every 5 seconds
+        except Exception as e:
+            print(f"Error saving transcript: {e}")
+            await asyncio.sleep(5)
 
-def main():
+# Modify the main function to use asyncio
+async def async_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="medium", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
@@ -26,6 +44,8 @@ def main():
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
+    parser.add_argument("--output_file", default=None,
+                        help="File to save the transcript to.", type=str)
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
                             help="Default microphone name for SpeechRecognition. "
@@ -91,9 +111,12 @@ def main():
     # Cue the user that we're ready to go.
     print("Model loaded.\n")
 
+    # Start the save_transcript coroutine
+    save_task = asyncio.create_task(save_transcript(transcription, args.output_file))
+
     while True:
         try:
-            now = datetime.utcnow()
+            now = datetime.now()
             # Pull raw recorded audio from the queue.
             if not data_queue.empty():
                 phrase_complete = False
@@ -134,16 +157,28 @@ def main():
                     print(line)
                 # Flush stdout.
                 print('', end='', flush=True)
+                
+                # Add a small await to allow other coroutines to run
+                await asyncio.sleep(0.01)
             else:
                 # Infinite loops are bad for processors, must sleep.
-                sleep(0.25)
+                await asyncio.sleep(0.25)
         except KeyboardInterrupt:
             break
+
+    # Cancel the save task before exiting
+    save_task.cancel()
+    try:
+        await save_task
+    except asyncio.CancelledError:
+        pass
 
     print("\n\nTranscription:")
     for line in transcription:
         print(line)
 
+def main():
+    asyncio.run(async_main())
 
 if __name__ == "__main__":
     main()
